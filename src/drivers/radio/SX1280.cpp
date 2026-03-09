@@ -686,6 +686,8 @@ void SX1280::SX1280_Config(void)
 	
 	SetPacketParams(cfg.payload_size);
 
+	//Set DIO1 to trigger on RxDone
+	SetDioIrqParams(IRQ_RX_DONE);
 
 	uint16_t syncWord = ReadSyncWord();
 	printf("[SX1280 CONFIG] Sync Word Before Write = 0x%04X\n", syncWord);

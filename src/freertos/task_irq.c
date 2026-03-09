@@ -2,6 +2,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "drivers/radio/peripheral_lora1280.h"
+#include "hardware/gpio.h"
 #include "drivers/radio/radio_hal.h"
 #include <string.h>
 #include <stdio.h>
@@ -9,6 +10,9 @@
 #include "config.h"
 #include "debug.h"
 #include "task_rx.h"
+
+
+#define RF_DIO1 15
 
 void irq_task(uint gpio, uint32_t events)
 {

@@ -3,3 +3,6 @@
 
 void irq_task(uint gpio, uint32_t events);
 
+#define RF_DIO1 15
+
+#endif // TASK_IRQ_H

@@ -13,7 +13,7 @@
 #include "task_irq.h"
 
 
-#define RF_DIO1 15
+
 
 void irq_task(uint gpio, uint32_t events)
 {

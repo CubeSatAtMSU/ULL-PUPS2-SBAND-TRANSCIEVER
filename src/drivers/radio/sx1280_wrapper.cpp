@@ -29,15 +29,6 @@ void sx1280_reset(void) {
     radio.Reset_SX1280();
 }
 
-void sx1280_start_receive(uint8_t *buf, uint16_t *len) {
-    radio.RxBufferInit(buf, len);
-    radio.RxInit();
-}
-
-bool sx1280_poll_receive_done(void) {
-    return radio.WaitForIRQ_RxDone() != 0;
-}
-
 // New wrapper functions for configuration
 void sx1280_set_frequency(uint32_t freq_hz) {
     radio.ConfigureFrequency(freq_hz);
@@ -54,7 +45,5 @@ void sx1280_set_modulation(uint8_t packetType) {
 void sx1280_set_modulation_params(uint8_t sf, uint8_t bw, uint8_t cr) {
     radio.ConfigureModulationParams(sf, bw, cr);
 }
-
-
 
 }

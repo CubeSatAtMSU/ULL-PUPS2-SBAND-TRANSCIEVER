@@ -23,8 +23,6 @@ static void radio_task(void *pvParameters) {
     uint32_t last_bw = 0;
     uint8_t last_sf = 0;
     uint8_t last_cr = 0;
-    static uint8_t rx_buf[255];
-    static uint16_t rx_len = 0;
 
     for (;;) {
         radio_message_t msg;
@@ -33,7 +31,7 @@ static void radio_task(void *pvParameters) {
 
             switch (msg.type) {
                 case RADIO_MSG_CONFIGURE:
-                    DEBUG_INFO("[RADIO] CONFIGURE message received.\n");
+                    printf("[RADIO] CONFIGURE message received.\n");
 
                     // Build updated config
                     radio_config_t new_cfg = get_active_radio_config();
@@ -55,11 +53,11 @@ static void radio_task(void *pvParameters) {
                     break;
 
                 case RADIO_MSG_SEND_DATA:
-                    DEBUG_INFO("[RADIO] TX binary (%d bytes): ", msg.body.payload.length);
+                    printf("[RADIO] TX binary (%d bytes): ", msg.body.payload.length);
                     for (int i = 0; i < msg.body.payload.length; i++) {
-                        DEBUG_INFO("%02X ", msg.body.payload.data[i]);
+                        printf("%02X ", msg.body.payload.data[i]);
                     }
-                    DEBUG_INFO("\n");
+                    printf("\n");
 
                     {
                         uint8_t header[4] = {0xFF, 0xFF, 0x00, 0x00};
@@ -71,23 +69,22 @@ static void radio_task(void *pvParameters) {
                         memcpy(tx_buf + 4, msg.body.payload.data, msg.body.payload.length);
                         total_len = msg.body.payload.length + 4;
 
-                        DEBUG_INFO("[RADIO] Transmitting %zu bytes with RadioHead header.\n", total_len);
+                        printf("[RADIO] Transmitting %zu bytes with RadioHead header.\n", total_len);
                         // Check if radio is configured yet
 //                        if (last_freq == 0) {
  //                           printf("[RADIO] ERROR: Radio parameters not configured yet. Cannot transmit.\n");
   //                      } else {
                             radio_hal_transmit(tx_buf, total_len);
-                            sx1280_start_receive(rx_buf, &rx_len);  // re-enter RX after TX !MARK ADDITION
    //                     }
                     }
                     break;
 
                 default:
-                    DEBUG_INFO("[RADIO] Unknown message type: %d\n", msg.type);
+                    printf("[RADIO] Unknown message type: %d\n", msg.type);
                     break;
             }
         } else {
-            DEBUG_INFO("[Radio Task] No message received\n");
+            printf("[Radio Task] No message received\n");
         }
 
         vTaskDelay(pdMS_TO_TICKS(sys_config.radio_tx_interval_ms));

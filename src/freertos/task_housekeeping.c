@@ -9,14 +9,14 @@
 #include "core/message_queue.h"
 #include <string.h>
 #include "config.h"
+#include "debug.h"
 
 void housekeeping_task(void *params) {
-    printf("[HOUSEKEEPING] Starting housekeeping task...\n");
+    DEBUG_INFO("[HOUSEKEEPING] Starting housekeeping task...\n");
     housekeeping_init();
 
     while (1) {
-        printf("[HOUSEKEEPING] Collecting system data... every %lums\n", sys_config.housekeeping_interval_ms);
-
+        DEBUG_INFO("[HOUSEKEEPING] Collecting system data... every %lums\n", sys_config.housekeeping_interval_ms);
         uint8_t beacon_frame[64];
         hk_telemetry_t hk = collect_housekeeping_data();
         size_t len = protocol_spacecan_format_beacon(beacon_frame, sizeof(beacon_frame), &hk);
@@ -27,11 +27,11 @@ void housekeeping_task(void *params) {
         memcpy(msg.body.payload.data, beacon_frame, len);
         message_queue_send(&msg);
 
-        printf("[SPACECAN] Beacon payload (%zu bytes): ", len);
+        DEBUG_INFO("[SPACECAN] Beacon payload (%zu bytes): ", len);
         for (size_t i = 0; i < len; ++i) {
-            printf("%02X ", beacon_frame[i]);
+            DEBUG_INFO("%02X ", beacon_frame[i]);
         }
-        printf("\n");
+        DEBUG_INFO("\n");
 
         vTaskDelay(pdMS_TO_TICKS(sys_config.housekeeping_interval_ms));
     }

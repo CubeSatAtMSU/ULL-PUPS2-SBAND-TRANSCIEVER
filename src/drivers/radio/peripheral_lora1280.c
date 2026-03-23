@@ -19,3 +19,11 @@ bool lora1280_transmit(const uint8_t *data, uint8_t len) {
     sx1280_tx(data, len);
     return sx1280_wait_tx_done();
 }
+
+void lora1280_start_receive(uint8_t *buf, uint16_t *len) {
+    sx1280_start_receive(buf, len);
+}
+
+bool lora1280_poll_receive_done(void) {
+    return sx1280_poll_receive_done();
+}

@@ -8,5 +8,7 @@
 
 bool lora1280_init(void);
 bool lora1280_transmit(const uint8_t *data, uint8_t len);
+void lora1280_start_receive(uint8_t *buf, uint16_t *len);
+bool lora1280_poll_receive_done(void);
 
 #endif

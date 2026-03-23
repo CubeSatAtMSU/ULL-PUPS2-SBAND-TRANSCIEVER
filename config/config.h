@@ -55,6 +55,7 @@ typedef struct {
     uint32_t lora_reset;
     uint32_t lora_busy;
     uint32_t lora_dio1;
+    uint32_t lora_dio2;
 
     // I2C
     uint32_t i2c_sda;

@@ -32,6 +32,17 @@ bool sx1280_wait_tx_done(void);
 void sx1280_reset(void);
 
 /**
+ * Configure RX buffer and place radio into RX mode.
+ */
+void sx1280_start_receive(uint8_t *buf, uint16_t *len);
+
+/**
+ * Poll RX done state and copy payload into configured buffer when available.
+ * Returns true when a packet was received.
+ */
+bool sx1280_poll_receive_done(void);
+
+/**
  * New configuration functions
  */
 

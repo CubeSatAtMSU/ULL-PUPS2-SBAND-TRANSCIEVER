@@ -306,7 +306,7 @@ protected:
 	void GetRxBufferStatus( uint8_t *payloadLength, uint8_t *rxStartBufferPointer );
 	void GetPacketStatus(int8_t RssiPkt,int8_t SnrPkt);
 	int8_t GetRssiInst( void );
-	void SetDioIrqParams(uint16_t irq);
+	void SetDioIrqParams(uint16_t irq1, uint16_t irq2);
 	uint16_t GetIrqStatus( void );
 	void ClearIrqStatus( uint16_t irq );
 	void SetRegulatorMode( uint8_t mode );

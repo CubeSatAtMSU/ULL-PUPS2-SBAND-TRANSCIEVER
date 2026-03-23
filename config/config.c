@@ -33,6 +33,7 @@ void config_load_defaults(void) {
     pin_config.lora_reset = 25;
     pin_config.lora_busy  = 24;
     pin_config.lora_dio1  = 29;
+    pin_config.lora_dio2  = 28;
 
     pin_config.i2c_sda = 10;
     pin_config.i2c_scl = 11;

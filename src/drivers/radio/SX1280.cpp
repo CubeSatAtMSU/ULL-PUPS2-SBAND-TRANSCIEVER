@@ -36,6 +36,7 @@ extern "C" {
 #define RF_NRESET pin_config.lora_reset
 #define RF_BUSY pin_config.lora_busy
 #define RF_DIO1 pin_config.lora_dio1
+#define RF_DIO2 pin_config.lora_dio2
 /*
 The TCXO is 32MHz, so the frequency step should be FREQ_STEP = 52e6 / (2^18) Hz
 */
@@ -61,6 +62,8 @@ void SX1280::Pin_Init(void)
 	gpio_set_dir(RF_BUSY, GPIO_IN);
 	gpio_init(RF_DIO1);
 	gpio_set_dir(RF_DIO1, GPIO_IN);
+	gpio_init(RF_DIO2);
+	gpio_set_dir(RF_DIO2, GPIO_IN);
 }
 
 bool SX1280::Init()
@@ -527,7 +530,7 @@ int8_t SX1280::GetRssiInst( void )
     return ( int8_t )( -raw / 2 );
 }
 
-void SX1280::SetDioIrqParams(uint16_t irq)
+void SX1280::SetDioIrqParams(uint16_t irq1, uint16_t irq2)
 {
     uint8_t buf[8];
 	uint16_t irqMask;
@@ -535,9 +538,9 @@ void SX1280::SetDioIrqParams(uint16_t irq)
 	uint16_t dio2Mask;
 	uint16_t dio3Mask;
 	
-	irqMask = irq;
-	dio1Mask = irq;
-	dio2Mask = 0;
+	irqMask = IRQ_RADIO_ALL;
+	dio1Mask = irq1;
+	dio2Mask = irq2;
 	dio3Mask = 0;
 	
     buf[0] = ( uint8_t )( irqMask >> 8 );
@@ -593,7 +596,7 @@ void SX1280::TxPacket(uint8_t *payload,uint8_t size)
 	WriteBuffer(0,payload,size);//(offset,*data,length)
 	SetPacketParams(size);//PreambleLength;HeaderType;PayloadLength;CRCType;InvertIQ
 
-	SetDioIrqParams(IRQ_TX_DONE);//TxDone IRQ
+	SetDioIrqParams(IRQ_TX_DONE, IRQ_RX_DONE);//TxDone IRQ
 	
 	SetTx(PERIOBASE_15_US,0);//timeout = 0
 	
@@ -634,7 +637,7 @@ void SX1280::RxBufferInit(uint8_t *rxpayload,uint16_t *rx_size)
 void SX1280::RxInit(void)
 {
 	SetBufferBaseAddress(0,0);//(TX_base_addr,RX_base_addr)
-	SetDioIrqParams(IRQ_RX_DONE);//RxDone IRQ
+	SetDioIrqParams(IRQ_TX_DONE, IRQ_RX_DONE);//RxDone IRQ
 	SetRx(PERIOBASE_15_US,0);//timeout = 0
 }
 uint8_t SX1280::WaitForIRQ_RxDone(void)
@@ -643,7 +646,8 @@ uint8_t SX1280::WaitForIRQ_RxDone(void)
 	uint8_t packet_size;
 	uint8_t buf_offset;
 
-	if(gpio_get(RF_DIO1))//if IRQ check
+	//if(gpio_get(RF_DIO1))//if IRQ check
+	if(gpio_get(RF_DIO2)) // was RF_DIO1
 	{
 		Irq_Status = GetIrqStatus();//read Irq Status
 		if((Irq_Status&0x0002) == IRQ_RX_DONE)
@@ -686,6 +690,8 @@ void SX1280::SX1280_Config(void)
 	
 	SetPacketParams(cfg.payload_size);
 
+	//Set DIO2 to trigger on RxDone
+	SetDioIrqParams(IRQ_TX_DONE, IRQ_RX_DONE);
 
 	uint16_t syncWord = ReadSyncWord();
 	printf("[SX1280 CONFIG] Sync Word Before Write = 0x%04X\n", syncWord);

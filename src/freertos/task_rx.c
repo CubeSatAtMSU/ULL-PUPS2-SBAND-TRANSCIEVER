@@ -13,28 +13,49 @@
 #define RX_BUFFER_SIZE 255
 #define RX_BUFFER_LENGTH 255
 
-uint8_t rx_buf[RX_BUFFER_SIZE];
-uint16_t rx_len = RX_BUFFER_LENGTH;
 TaskHandle_t rxTaskHandle = NULL;
 
 void rx_task(void *params) {
-    printf("[RX] Starting RX task...\n");
-    //static uint8_t rx_buf[RX_BUFFER_SIZE];
-    //static uint16_t rx_len = 0;
+    DEBUG_INFO("[RX] Starting RX task...\n");
+    static uint8_t rx_buf[RX_BUFFER_SIZE];
+    static uint16_t rx_len = 0;
 
     //memset(rx_buf, 0, sizeof(rx_buf));
     //lora1280_start_receive(rx_buf, &rx_len);
 
-    while (1)
-    {
-        SetDioIrqParams(IRQ_TX_DONE, IRQ_RX_DONE);
-        sx1280_start_receive(RX_BUFFER_SIZE, RX_BUFFER_LENGTH);
-        BaseType_t notified = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(5000));
-            if (notified == 0) {
-                printf("[RX] Timeout - IRQ never fired\n");
-            } else {
-                printf("[RX] Notification received\n");
+    while (1) {
+        if (sx1280_poll_receive_done()) {
+            DEBUG_INFO("[RX] Packet received (%u bytes): ", rx_len);
+            for (uint16_t i = 0; i < rx_len; i++) {
+                DEBUG_INFO("%02X ", rx_buf[i]);
             }
+            DEBUG_INFO("\n");
+        }
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    /*while (1)
+    {
+        /*memset(rx_buf, 0, sizeof(rx_buf));
+        rx_len=0;
+        sx1280_start_receive(rx_buf, &rx_len);
+
+        if (sx1280_poll_receive_done()) {
+            DEBUG_INFO("[RX] Packet received (%u bytes): ", rx_len);
+            for (uint16_t i = 0; i < rx_len; i++) {
+                DEBUG_INFO("%02X ", rx_buf[i]);
+            }
+            DEBUG_INFO("\n");
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(100));*/ //Mark OLD
+
+        //Mark New
+        
+
+
+        //SetDioIrqParams(IRQ_TX_DONE, IRQ_RX_DONE);
+        //sx1280_start_receive(RX_BUFFER_SIZE, RX_BUFFER_LENGTH);
+        //ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         //if (lora1280_poll_receive_done())
         // {
@@ -53,10 +74,16 @@ void rx_task(void *params) {
         //     }
         //     printf("\n");
         // }
-        printf("[RX] Notification received \n");
-    }
+        //DEBUG_INFO("[RX] Notification received \n");
 }
 
+
+/*void rx_task(void *params) {
+    DEBUG_INFO("[RX] RX task started (stub)\n");
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}*/
 void launch_rx_task(void) {
     xTaskCreate(
         rx_task,

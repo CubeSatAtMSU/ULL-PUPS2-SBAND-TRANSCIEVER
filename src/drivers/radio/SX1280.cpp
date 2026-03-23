@@ -646,7 +646,8 @@ uint8_t SX1280::WaitForIRQ_RxDone(void)
 	uint8_t packet_size;
 	uint8_t buf_offset;
 
-	if(gpio_get(RF_DIO1))//if IRQ check
+	//if(gpio_get(RF_DIO1))//if IRQ check
+	if(gpio_get(RF_DIO2)) // was RF_DIO1
 	{
 		Irq_Status = GetIrqStatus();//read Irq Status
 		if((Irq_Status&0x0002) == IRQ_RX_DONE)

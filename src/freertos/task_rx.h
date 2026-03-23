@@ -9,5 +9,7 @@ void rx_tasks(void);
 void launch_rx_task(void);
 
 extern TaskHandle_t rxTaskHandle;
+extern uint8_t rx_buf[255];
+extern uint16_t rx_len;
 
 #endif // INIT_TASKS_H

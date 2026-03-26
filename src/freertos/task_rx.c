@@ -29,6 +29,11 @@ void rx_task(void *params) {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         
         if (sx1280_poll_receive_done()) {
+            sx1280_start_receive(rx_buf, &rx_len); // Start next receive immediately
+            printf("rx_len = %u\n", rx_len);
+
+            rx_len = 17; // Temporary fix to force correct print length
+
             DEBUG_INFO("[RX] Packet received (%u bytes): ", rx_len);
             for (uint16_t i = 0; i < rx_len; i++) {
                 DEBUG_INFO("%02X ", rx_buf[i]);

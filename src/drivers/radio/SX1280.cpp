@@ -242,11 +242,14 @@ void SX1280::ReadBuffer(uint8_t offset, uint8_t *data, uint8_t length)
 	spi_rw(RADIO_READ_BUFFER);
 	spi_rw(offset);
 	spi_rw(0xFF);
+	printf("[ReadBuffer] Length to read: %d\n", length);
 	for(i=0;i<length;i++)
 	{
 		data[i]=spi_rw(0xFF);
+		printf("ReadBuffer data[%d]: 0x%02X\n", i, data[i]);
 	}
-	
+	printf("\n");
+
     SPI_NSS_HIGH();
     CheckBusy();
 }

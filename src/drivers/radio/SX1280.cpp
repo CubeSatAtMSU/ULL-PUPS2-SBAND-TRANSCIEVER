@@ -651,28 +651,30 @@ void SX1280::RxInit(void)
     SetDioIrqParams(IRQ_TX_DONE, IRQ_RX_DONE); // RxDone IRQ
     SetRx(PERIOBASE_15_US, 0);                 // timeout = 0
 }
+
 uint8_t SX1280::WaitForIRQ_RxDone(void)
 {
     uint16_t Irq_Status;
     uint8_t packet_size;
     uint8_t buf_offset;
 
-    if ((rxbuf_pt == nullptr) || (rxcnt_pt == nullptr))
+    
+    if ((rxbuf_pt == nullptr) || (rxcnt_pt == nullptr)) // Ensure that either pointer has an address, if not return 0
     {
         return 0;
     }
 
     Irq_Status = GetIrqStatus();
-    if ((Irq_Status & IRQ_RX_DONE) == 0)
+    if ((Irq_Status & IRQ_RX_DONE) == 0)                // Ensure that the IRQ that was triggered is IRQ_RX_DONE, if not return 0
     {
         return 0;
     }
 
-    GetRxBufferStatus(&packet_size, &buf_offset);
-    ReadBuffer(buf_offset, rxbuf_pt, packet_size);
-    *rxcnt_pt = packet_size;
-    ClearIrqStatus(Irq_Status); // Clear all currently latched IRQ flags
-    RxInit();
+    GetRxBufferStatus(&packet_size, &buf_offset);       // Obtain the packet size in memory
+    ReadBuffer(buf_offset, rxbuf_pt, packet_size);      // Read buffer and store in rxbuf_pt
+    *rxcnt_pt = packet_size;                            // Store packet size into rxcnt_pnt
+    ClearIrqStatus(IRQ_RX_DONE);                        // Clear the IRQ RxDone flag so IRQ can fire again
+    RxInit();                                           // Reinitialize RX
     return 1;
 }
 

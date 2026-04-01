@@ -1,3 +1,14 @@
+/* 
+*
+* File:         task_rx.c
+*
+* Purpose :     Task to handle receiving signal. When the IRQ service is triggered, 
+*               the task will be notified and will read the received data from the 
+*               radio module's buffer. This data is stored in the rx_buf and its
+*               length is stored in rx_len.  
+*
+*/
+
 #include "freertos/task_radio.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -18,22 +29,20 @@ TaskHandle_t rxTaskHandle = NULL;
 void rx_task(void *params)
 {
     DEBUG_INFO("[RX] Starting RX task...\n");
-    static uint8_t rx_buf[RX_BUFFER_SIZE];
-    static uint16_t rx_len = 0;
+    uint8_t rx_buf[RX_BUFFER_SIZE];
+    uint16_t rx_len = 0;
 
-    memset(rx_buf, 0, sizeof(rx_buf));
+    memset(rx_buf, 0, sizeof(rx_buf));              // memset may be redundant, look into later. 
     sx1280_start_receive(rx_buf, &rx_len);
 
     while (1)
-    {
+    {   
+        
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);    // Function waits here until called by the interrupt service in task_irq.c
+        DEBUG_INFO("[IRQ] DIO2 interrupt received\n");
 
-        printf("[IRQ] DIO2 interrupt received\n");
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-
-        if (sx1280_poll_receive_done())
+        if (sx1280_poll_receive_done())             // Calling sx1280_poll_receive_done stores data in rx_len and rx_buf
         {
-            printf("rx_len = %u\n", rx_len);
-
             DEBUG_INFO("[RX] Packet received (%u bytes): ", rx_len);
             for (uint16_t i = 0; i < rx_len; i++)
             {

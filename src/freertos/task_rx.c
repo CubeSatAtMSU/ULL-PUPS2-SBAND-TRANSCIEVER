@@ -15,27 +15,28 @@
 
 TaskHandle_t rxTaskHandle = NULL;
 
-void rx_task(void *params) {
+void rx_task(void *params)
+{
     DEBUG_INFO("[RX] Starting RX task...\n");
     static uint8_t rx_buf[RX_BUFFER_SIZE];
     static uint16_t rx_len = 0;
 
-    //memset(rx_buf, 0, sizeof(rx_buf));
-    //lora1280_start_receive(rx_buf, &rx_len);
+    memset(rx_buf, 0, sizeof(rx_buf));
+    sx1280_start_receive(rx_buf, &rx_len);
 
-    while (1) {
+    while (1)
+    {
 
         printf("[IRQ] DIO2 interrupt received\n");
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-        
-        if (sx1280_poll_receive_done()) {
-            sx1280_start_receive(rx_buf, &rx_len); // Start next receive immediately
+
+        if (sx1280_poll_receive_done())
+        {
             printf("rx_len = %u\n", rx_len);
 
-            rx_len = 17; // Temporary fix to force correct print length
-
             DEBUG_INFO("[RX] Packet received (%u bytes): ", rx_len);
-            for (uint16_t i = 0; i < rx_len; i++) {
+            for (uint16_t i = 0; i < rx_len; i++)
+            {
                 DEBUG_INFO("%02X ", rx_buf[i]);
             }
             DEBUG_INFO("\n");
@@ -56,36 +57,34 @@ void rx_task(void *params) {
             DEBUG_INFO("\n");
         }
 
-        vTaskDelay(pdMS_TO_TICKS(100));*/ //Mark OLD
+        vTaskDelay(pdMS_TO_TICKS(100));*/
+    // Mark OLD
 
-        //Mark New
-        
+    // Mark New
 
+    // SetDioIrqParams(IRQ_TX_DONE, IRQ_RX_DONE);
+    // sx1280_start_receive(RX_BUFFER_SIZE, RX_BUFFER_LENGTH);
+    // ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        //SetDioIrqParams(IRQ_TX_DONE, IRQ_RX_DONE);
-        //sx1280_start_receive(RX_BUFFER_SIZE, RX_BUFFER_LENGTH);
-        //ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+    // if (lora1280_poll_receive_done())
+    //  {
+    //      printf("[RX] Packet received (%u bytes): ", rx_len);
+    //      for (uint16_t i = 0; i < rx_len; i++)
+    //      {
+    //          printf("%02X ", rx_buf[i]);
+    //      }
+    //      printf("\n");
 
-        //if (lora1280_poll_receive_done())
-        // {
-        //     printf("[RX] Packet received (%u bytes): ", rx_len);
-        //     for (uint16_t i = 0; i < rx_len; i++)
-        //     {
-        //         printf("%02X ", rx_buf[i]);
-        //     }
-        //     printf("\n");
-
-        //     printf("[RX] ASCII: ");
-        //     for (uint16_t i = 0; i < rx_len; i++)
-        //     {
-        //         char c = (char)rx_buf[i];
-        //         printf("%c", (c >= 32 && c <= 126) ? c : '.');
-        //     }
-        //     printf("\n");
-        // }
-        //DEBUG_INFO("[RX] Notification received \n");
+    //     printf("[RX] ASCII: ");
+    //     for (uint16_t i = 0; i < rx_len; i++)
+    //     {
+    //         char c = (char)rx_buf[i];
+    //         printf("%c", (c >= 32 && c <= 126) ? c : '.');
+    //     }
+    //     printf("\n");
+    // }
+    // DEBUG_INFO("[RX] Notification received \n");
 }
-
 
 /*void rx_task(void *params) {
     DEBUG_INFO("[RX] RX task started (stub)\n");
@@ -93,13 +92,13 @@ void rx_task(void *params) {
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }*/
-void launch_rx_task(void) {
+void launch_rx_task(void)
+{
     xTaskCreate(
         rx_task,
         "RX",
         512,
         NULL,
         tskIDLE_PRIORITY,
-        &rxTaskHandle
-    );
+        &rxTaskHandle);
 }

@@ -8,6 +8,7 @@
 #include "core/message_queue.h"
 #include "config.h"
 #include "debug.h"
+#include "freertos/radio_functions.h"
 
 #define RADIO_TASK_STACK_SIZE 512
 #define RADIO_TASK_PRIORITY (tskIDLE_PRIORITY + 2)
@@ -39,12 +40,9 @@ static void radio_task(void *pvParameters)
 
                 // Build updated config
                 radio_config_t new_cfg = get_active_radio_config();
-                new_cfg.rf_freq = msg.body.config.frequency_hz;
-                new_cfg.tx_power = msg.body.config.power_dbm;
-                new_cfg.modulation = msg.body.config.modulation;
-                new_cfg.band_width = msg.body.config.bandwidth_hz;
-                new_cfg.lora_sf = msg.body.config.spreading_factor;
-                new_cfg.code_rate = msg.body.config.coding_rate;
+
+                // Set variables from message to new_cfg
+                set_radio_config_variables(&new_cfg, &msg);
 
                 // Save back to active config
                 set_active_radio_config(&new_cfg);
@@ -57,11 +55,12 @@ static void radio_task(void *pvParameters)
 
             case RADIO_MSG_SEND_DATA:
                 DEBUG_INFO("[RADIO] TX binary (%d bytes): ", msg.body.payload.length);
-                for (int i = 0; i < msg.body.payload.length; i++)
-                {
-                    DEBUG_INFO("%02X ", msg.body.payload.data[i]);
-                }
-                DEBUG_INFO("\n");
+                // for (int i = 0; i < msg.body.payload.length; i++)
+                // {
+                //     DEBUG_INFO("%02X ", msg.body.payload.data[i]);
+                // }
+                // DEBUG_INFO("\n");
+                print_hex(msg.body.payload.data, msg.body.payload.length);
 
                 {
                     uint8_t header[4] = {0xFF, 0xFF, 0x00, 0x00};

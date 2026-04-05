@@ -7,6 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 #include "hardware/spi.h"
+#include "core/message_queue.h"
 
 // === LoRa parameters ===
 typedef struct {
@@ -73,6 +74,7 @@ extern sys_config_t sys_config;
 
 radio_config_t get_active_radio_config(void);
 void config_load_defaults(void);
+void set_radio_config_variables(radio_config_t *cfg, const radio_message_t *msg);
 void set_active_radio_config(const radio_config_t* new_cfg);
 
 #ifdef __cplusplus

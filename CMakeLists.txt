@@ -27,6 +27,7 @@ add_executable(${ProjectName}
     src/freertos/task_housekeeping.c
     src/freertos/task_irq.c
     src/freertos/task_rx.c
+    src/freertos/radio_functions.c
     src/drivers/spi/bus_config.c
     src/drivers/radio/peripheral_lora1280.c
     src/drivers/radio/peripheral_rfm9x.c

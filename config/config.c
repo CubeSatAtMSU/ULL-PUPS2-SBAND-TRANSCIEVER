@@ -1,4 +1,5 @@
 #include "config.h"
+#include "core/message_queue.h"
 
 // Global instances
 pin_config_t pin_config;
@@ -65,6 +66,15 @@ void config_load_defaults(void) {
 
 radio_config_t get_active_radio_config(void) {
     return active_radio_config;
+}
+
+void set_radio_config_variables(radio_config_t *cfg, const radio_message_t *msg) {
+    cfg->rf_freq = msg->body.config.frequency_hz;
+    cfg->tx_power = msg->body.config.power_dbm;
+    cfg->modulation = msg->body.config.modulation;
+    cfg->band_width = msg->body.config.bandwidth_hz;
+    cfg->lora_sf = msg->body.config.spreading_factor;
+    cfg->code_rate = msg->body.config.coding_rate;
 }
 
 void set_active_radio_config(const radio_config_t* new_cfg) {

@@ -9,5 +9,6 @@ void init_tasks(void) {
     launch_can_task();
     launch_housekeeping_task();
     launch_rx_task();
+    launch_serial_task();
 
 }

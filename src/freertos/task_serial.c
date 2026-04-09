@@ -3,6 +3,7 @@
 #include "task.h"
 #include "drivers/radio/peripheral_lora1280.h"
 #include "drivers/radio/radio_hal.h"
+#include "pico/stdlib.h"
 #include <string.h>
 #include <stdio.h>
 #include "core/message_queue.h"
@@ -12,16 +13,20 @@
 
 void task_serial(void *params)
 {
+    (void)params;
     DEBUG_INFO("[SERIAL] Starting Serial task...\n");
-    while(1) {
+    while (1)
+    {
         int ch = getchar_timeout_us(0);
-        if (ch >= 0) {
-            if (ch == 's' || ch == 'S') {
+        if (ch >= 0)
+        {
+            if (ch == 's' || ch == 'S')
+            {
                 DEBUG_INFO("[SERIAL] Recieved from serial \n");
             }
         }
     }
-    }
+}
 
 void launch_serial_task(void)
 {
@@ -31,7 +36,5 @@ void launch_serial_task(void)
         512,
         NULL,
         tskIDLE_PRIORITY + 1,
-        NULL
-    );
+        NULL);
 }
-

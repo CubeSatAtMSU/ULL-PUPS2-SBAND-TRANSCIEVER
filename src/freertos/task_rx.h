@@ -8,7 +8,7 @@ void rx_tasks(void);
 
 void launch_rx_task(void);
 
-void task_serial(void);
+void task_serial(void *params);
 
 void launch_serial_task(void);
 

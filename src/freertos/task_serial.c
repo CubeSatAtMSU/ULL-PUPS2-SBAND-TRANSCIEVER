@@ -18,11 +18,44 @@ void task_serial(void *params)
     while (1)
     {
         int ch = getchar_timeout_us(0);
+
         if (ch >= 0)
         {
             if (ch == 's' || ch == 'S')
             {
-                DEBUG_INFO("[SERIAL] Recieved from serial \n");
+                if (getchar_timeout_us(100000) == ' ')
+                {
+                    DEBUG_INFO("[SERIAL] Recieved from serial \n");
+                    char buf[64];
+                    int i = 0;
+                    int len;
+
+                    while (i < sizeof(buf) - 1)
+                    {
+                        int ch = getchar_timeout_us(100000); // 100ms per-char timeout
+                        if (ch == PICO_ERROR_TIMEOUT)
+                            break;
+                        if (ch == '\n' || ch == '\r')
+                            len = i;
+                        break; // end of message
+                        buf[i++] = (char)ch;
+                    }
+                    buf[i] = '\0';
+
+                    // Now buf contains your message string
+                    printf("Received message: %s\n", buf);
+
+                    radio_message_t msg;
+                    msg.type = RADIO_MSG_SEND_DATA;
+                    msg.body.payload.length = sizeof(buf);
+                    memcpy(msg.body.payload.data, buf, sizeof(buf));
+                    message_queue_send(&msg);
+                }
+
+                else
+                {
+                    DEBUG_INFO("[SERIAL] Unrecognized command: %c\n", ch);
+                }
             }
         }
     }

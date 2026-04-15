@@ -28,18 +28,25 @@ void task_serial(void *params)
                     DEBUG_INFO("[SERIAL] Recieved from serial \n");
                     char buf[64];
                     int i = 0;
-                    int len;
+                    size_t len;
 
                     while (i < sizeof(buf) - 1)
                     {
+                        printf("Waiting for character %d...\n", i);
                         int ch = getchar_timeout_us(100000); // 100ms per-char timeout
                         if (ch == PICO_ERROR_TIMEOUT)
                         {
+                            printf("Timeout waiting for character %d\n", i);
                             break;
                         }
                         if (ch == '\n' || ch == '\r')
                         {
-                            len = i;
+
+                            printf("Newline detected at position %d\n", i);
+                            /*
+                            len = (size_t)i;
+                            printf("End of message detected. Length: %d\n", len);
+                            */
                             break; // end of message
                         }
                         buf[i++] = (char)ch;
@@ -51,8 +58,9 @@ void task_serial(void *params)
 
                     radio_message_t msg;
                     msg.type = RADIO_MSG_SEND_DATA;
-                    msg.body.payload.length = sizeof(buf);
-                    memcpy(msg.body.payload.data, buf, sizeof(buf));
+                    msg.body.payload.length = (size_t)i;
+                    printf("Payload length: %d\n", msg.body.payload.length);
+                    memcpy(msg.body.payload.data, buf, (size_t)i);
                     message_queue_send(&msg);
                 }
 

@@ -34,10 +34,14 @@ void task_serial(void *params)
                     {
                         int ch = getchar_timeout_us(100000); // 100ms per-char timeout
                         if (ch == PICO_ERROR_TIMEOUT)
+                        {
                             break;
+                        }
                         if (ch == '\n' || ch == '\r')
+                        {
                             len = i;
-                        break; // end of message
+                            break; // end of message
+                        }
                         buf[i++] = (char)ch;
                     }
                     buf[i] = '\0';
